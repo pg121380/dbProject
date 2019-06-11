@@ -6,6 +6,38 @@
     <script src="/js/jquery-1.12.4.min.js"></script>
     <script src="/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
     <link href="/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <script src="/js/path.js"></script>
+    <script>
+        $(function () {
+            var $editIdInput = $("#editIDInput");
+            $editIdInput.change(function () {
+                $.ajax({
+                    url: BaseUrl + "/employee?",
+                    data: "id=" + this.value,
+                    type: "GET",
+                    dataType: "JSON",
+                    success: function (employee) {
+                        console.log(employee);
+                        $("#editNameInput").attr("value",employee.employeeName);
+                        $("#editAgeInput").attr("value",employee.age);
+                        $("#editHireDateInput").attr("value",employee.hireDate);
+                        $("#editTitleInput").attr("value",employee.title);
+
+                        if(employee.employeeName == "此姓名不存在！！！！！！！"){
+                            $("#edit_submit_btn").addClass("disabled");
+                            alert("输入的id不存在！")
+                        } else {
+                            $("#edit_submit_btn").attr("class","btn btn-success");
+                        }
+                    }
+                })
+            });
+
+            $("[delete_btn]").click(function () {
+                return confirm("确认删除？");
+            })
+        })
+    </script>
 </head>
 <body>
     <div class="jumbotron">
@@ -22,10 +54,21 @@
         <div class="col-md-8 col-md-offset-3">
             <a href="/getEmployees" class="btn btn-info">获取所有职工信息</a>
             <button type="button" class="btn btn-info" data-toggle="modal" data-target="#selectModal">查询职工信息</button>
-            <button type="button" data-toggle="modal" data-target="#selectByLikeModal" class="btn btn-info">根据工作时间查找职工信息</button>
+            <button type="button" data-toggle="modal" data-target="#selectByTime" class="btn btn-info">根据工作时间查找职工信息</button>
             <button type="button" class="btn btn-info" data-toggle="modal" data-target="#addModal">添加职工信息</button>
             <button type="button" data-toggle="modal" data-target="#editModal" class="btn btn-info">修改职工信息</button>
             <a class="btn btn-warning" href="http://localhost:8080">回到首页</a>
+        </div>
+        <div class="col-md-8 col-md-offset-3">
+            <br>
+            <a href="/employee/getByMarriage?isMarried=1" class="btn btn-info">已婚职员</a>
+            <a href="/employee/getByMarriage?isMarried=0" class="btn btn-info">未婚职员</a>
+        </div>
+        <div class="col-md-8 col-md-offset-3">
+            <br>
+            <span th:each="dept:${depts}">
+                <a class="btn btn-info" th:href="@{'/employee/getByDept?deptNumber='+${dept.deptId}}" th:text="${dept.deptName} + '职工'"></a>
+            </span>
         </div>
     </div>
     <div class="row" th:if="${msg} ne null">
@@ -59,7 +102,7 @@
                             <td th:text="${employee.hireDate}"></td>
                             <td th:text="${converter.convert(employee.postNumber)}"></td>
                             <td th:text="${employee.title}"></td>
-                            <td th:text="${employee.married}"></td>
+                            <td th:text="${employee.isMarried}"></td>
                             <td th:text="${converter.convert(employee.deptNumber)}"></td>
                             <td id="operateCol">
                                 <a th:attr="delete_btn='true'" th:href="@{/employee/delete(id=${employee.employeeId})}" class="btn btn-danger">删除</a>
@@ -123,6 +166,123 @@
                             <input type="radio" name="isMarried" value="0" checked>未婚
                         </div>
                         <input id="submit_btn" type="submit" value="添加" class="btn btn-success"/>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--职工信息修改模态框-->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">修改职工信息</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm" action="http://localhost:8080/employee/update" method="post">
+                        <div class="form-group">
+                            <label for="editIDInput">职工号</label>
+                            <input type="text" class="form-control" id="editIDInput" name="employeeId" placeholder="如：123"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="editNameInput">姓名</label>
+                            <input type="text" class="form-control" id="editNameInput" name="employeeName" placeholder="如：张三"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="editAgeInput">年龄</label>
+                            <input type="text" class="form-control" id="editAgeInput" name="age" placeholder="如：25"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="editPostInput">岗位</label>
+                            <select name="postNumber" id="editPostInput" class="form-control">
+                                <option th:each="post:${posts}" th:text="${post.postName}" th:value="${post.postId}">
+
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editHireDateInput">入职时间</label>
+                            <input type="text" class="form-control" id="editHireDateInput" name="hireDate" placeholder="如：2009-12-1"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="editTitleInput">职称</label>
+                            <input type="text" class="form-control" id="editTitleInput" name="title" placeholder="如：高级工程师"/>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editDeptInput">部门</label>
+                            <select name="deptNumber" id="editDeptInput" class="form-control">
+                                <option th:each="dept:${depts}" th:text="${dept.deptName}" th:value="${dept.deptId}">
+
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>婚姻情况</label>
+                            <input type="radio" name="isMarried" value="1">已婚&nbsp;&nbsp;&nbsp;
+                            <input type="radio" name="isMarried" value="0" checked>未婚
+                        </div>
+                        <input id="edit_submit_btn" type="submit" value="修改" class="btn btn-success"/>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--职工信息动态查询模态框-->
+    <div class="modal fade" id="selectModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="selectByCondition">查询职工信息</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="selectForm" action="http://localhost:8080/employee/get" method="post">
+                        <div class="form-group">
+                            <label for="selectIDInput">职工号</label>
+                            <input type="text" class="form-control" id="selectIDInput" name="employeeId" placeholder="如：e-001"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="selectNameInput">姓名</label>
+                            <input type="text" class="form-control" id="selectNameInput" name="employeeName" placeholder="如：张三"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="selectTitleInput">职称</label>
+                            <input type="text" class="form-control" id="selectTitleInput" name="title" placeholder="如：高级工程师"/>
+                        </div>
+                        <input id="select_submit_btn" type="submit" value="查询" class="btn btn-success"/>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="selectByTime" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">根据入职年数查询</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="selectTimeForm" action="http://localhost:8080/employee/getByTime" method="post">
+                        <div class="form-group">
+                            <label for="timeInput">入职年数</label>
+                            <input type="text" class="form-control" id="timeInput" name="time" placeholder="如:3 则会显示入职时间超过3年的员工"/>
+                        </div>
+                        <input id="selectTime_submit_btn" type="submit" value="查询" class="btn btn-success"/>
                     </form>
                 </div>
                 <div class="modal-footer">

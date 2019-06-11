@@ -1,4 +1,4 @@
-package pub.liyf.informationmanagement.config;
+package org.sfa.infomanage.config;
 
 import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
 import org.springframework.context.annotation.Bean;

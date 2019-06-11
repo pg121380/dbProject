@@ -1,4 +1,6 @@
-package org.sfa.bean;
+package org.sfa.infomanage.bean;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -7,10 +9,11 @@ public class Employee {
 	private String employeeId;
 	private String employeeName;
 	private int age;
-	private String postNumber;		//¸ÚÎ»ºÅ
-	private Date hireDate;		//ÈëÖ°Ê±¼ä
-	private String title;		//Ö°³Æ
-	private boolean isMarried;	// ÒÑ/Î´»é
+	private String postNumber;		//å²—ä½å·
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private Date hireDate;		//å…¥èŒæ—¶é—´
+	private String title;		//èŒç§°
+	private Boolean isMarried;	// å·²/æœªå©š
 	private String deptNumber;
 	
 	
@@ -20,7 +23,7 @@ public class Employee {
 	}
 	
 	public Employee(String employeeId, String employeeName, int age,
-			String postNumber, Date hireDate, String title, boolean isMarried,
+			String postNumber, Date hireDate, String title, Boolean isMarried,
 			String deptNumber) {
 		this.employeeId = employeeId;
 		this.employeeName = employeeName;
@@ -68,7 +71,7 @@ public class Employee {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-	public boolean isMarried() {
+	public Boolean getIsMarried() {
 		return isMarried;
 	}
 	public void setMarried(boolean isMarried) {
