@@ -6,6 +6,7 @@ import org.sfa.infomanage.sqlprovider.EmployeeSQLProvider;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 @Repository
@@ -28,4 +29,10 @@ public interface EmployeeMapper {
 
     @SelectProvider(type = EmployeeSQLProvider.class,method = "getQuerySql")
     List<Employee> getEmployeeByCondition(Employee employee);
+
+    @Select("select COUNT(*) as value,deptName as name from employee,department where employee.deptNumber=department.deptNumber group by(deptName)")
+    List<HashMap<String,Object>> getDeptEmployeeMap();
+
+    @Select("select COUNT(*) as value,employee.isMarried as name from employee group by(isMarried)")
+    List<HashMap<String,Object>> getEmployeeMarriage();
 }

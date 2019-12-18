@@ -6,24 +6,63 @@
     <script src="/js/jquery-1.12.4.min.js"></script>
     <script src="/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
     <link href="/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <script src="/js/path.js"></script>
+    <script>
+        $(function () {
+            var $editIdInput = $("#editIDInput");
+            $editIdInput.change(function () {
+                $.ajax({
+                    url: BaseUrl + "/education?",
+                    data: "id=" + this.value,
+                    type: "GET",
+                    dataType: "JSON",
+                    success: function (education) {
+                        console.log(education);
+                        $("#editBackInput").attr("value",education.eduBackground);
+                        $("#editMajorInput").attr("value",education.major);
+                        $("#editDateInput").attr("value",education.graduateDate);
+                        $("#editSchoolInput").attr("value",education.graduateSchool);
+                        $("#editLangInput").attr("value",education.foreignLang);
+
+                        if(education.eduBackground == "此姓名不存在！！！！！！！"){
+                            $("#edit_submit_btn").addClass("disabled");
+                            alert("输入的id不存在！")
+                        } else {
+                            $("#edit_submit_btn").attr("class","btn btn-success");
+                        }
+                    }
+                })
+            });
+
+            $("[delete_btn]").click(function () {
+                return confirm("确认删除？");
+            })
+        })
+    </script>
 </head>
 <body>
 <div class="jumbotron">
     <div class="container">
         <h1>学历管理系统</h1>
-        <p>code by YiFan-Li &amp; Peng-Xiao</p>
+        <p>code by Shangkexin</p>
     </div>
 </div>
 <ol class="breadcrumb">
-    <li><a href="/">Home</a></li>
+    <li><a href="/index">Home</a></li>
     <li class="active">Education</li>
 </ol>
 <div class="row">
     <div class="col-md-8 col-md-offset-3">
         <a href="/getEducations" class="btn btn-info">获取所有学历信息</a>
-        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#selectModal">查询学历信息</button>
-        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#addModal">添加学历信息</button>
-        <button type="button" data-toggle="modal" data-target="#editModal" class="btn btn-info">修改学历信息</button>
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#selectModal" th:if="${admin ne null}">查询学历信息</button>
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#addModal" th:if="${admin ne null}">添加学历信息</button>
+        <button type="button" data-toggle="modal" data-target="#editModal" class="btn btn-info" th:if="${admin ne null}">修改学历信息</button>
+    </div>
+    <div class="col-md-8 col-md-offset-3">
+        <br>
+        <a href="/education/getByBack?eduBackground=本科" class="btn btn-info" th:if="${admin ne null}">本科</a>
+        <a href="/education/getByBack?eduBackground=硕士" class="btn btn-info" th:if="${admin ne null}">硕士</a>
+        <a href="/education/getByBack?eduBackground=博士" class="btn btn-info" th:if="${admin ne null}">博士</a>
     </div>
 </div>
 <div class="row" th:if="${msg} ne null">
@@ -56,7 +95,7 @@
                         <td th:text="${edu.graduateSchool}"></td>
                         <td th:text="${edu.foreignLang}"></td>
                         <td id="operateCol">
-                            <a th:attr="delete_btn='true'" th:href="@{/education/delete}" class="btn btn-danger">删除</a>
+                            <a th:attr="delete_btn='true'" th:if="${admin ne null}" th:href="@{/education/delete(id=${edu.employeeId})}" class="btn btn-danger">删除</a>
                         </td>
                     </tr>
                     </tbody>
@@ -65,58 +104,131 @@
         </table>
     </div>
 </div>
-<!--职工信息添加模态框-->
+<!--职工学历信息添加模态框-->
 <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">添加职工信息</h4>
+                <h4 class="modal-title" id="myModalLabel">添加职工学历信息</h4>
             </div>
             <div class="modal-body">
-                <form id="addForm" action="http://localhost:8080/employee/add" method="post">
+                <form id="addForm" action="http://localhost:8080/education/add" method="post">
                     <div class="form-group">
                         <label for="addIDInput">职工号</label>
                         <input type="text" class="form-control" id="addIDInput" name="employeeId" placeholder="如：e-001"/>
                     </div>
                     <div class="form-group">
-                        <label for="addNameInput">姓名</label>
-                        <input type="text" class="form-control" id="addNameInput" name="employeeName" placeholder="如：张三"/>
+                        <label for="addNameInput">学历</label>
+                        <input type="text" class="form-control" id="addNameInput" name="eduBackground" placeholder="如：本科"/>
                     </div>
                     <div class="form-group">
-                        <label for="addAgeInput">年龄</label>
-                        <input type="text" class="form-control" id="addAgeInput" name="age" placeholder="如：25"/>
+                        <label for="addAgeInput">专业</label>
+                        <input type="text" class="form-control" id="addAgeInput" name="major" placeholder="如：软件工程"/>
                     </div>
                     <div class="form-group">
-                        <label for="addPostInput">岗位</label>
-                        <select name="postNumber" id="addPostInput" class="form-control">
-                            <option th:each="post:${posts}" th:text="${post.postName}" th:value="${post.postId}">
-
-                            </option>
-                        </select>
+                        <label for="addAgeInput">毕业时间</label>
+                        <input type="text" class="form-control" id="addTimeInput" name="graduateDate" placeholder="如：2009-12-1"/>
                     </div>
                     <div class="form-group">
-                        <label for="addHireDateInput">入职时间</label>
-                        <input type="text" class="form-control" id="addHireDateInput" name="hireDate" placeholder="如：2009-12-1"/>
+                        <label for="addTitleInput">毕业院校</label>
+                        <input type="text" class="form-control" id="addTitleInput" name="graduateSchool" placeholder="如：天津工业大学"/>
                     </div>
                     <div class="form-group">
-                        <label for="addTitleInput">职称</label>
-                        <input type="text" class="form-control" id="addTitleInput" name="title" placeholder="如：高级工程师"/>
-                    </div>
-                    <div class="form-group">
-                        <label for="addDeptInput">部门</label>
-                        <select name="deptNumber" id="addDeptInput" class="form-control">
-                            <option th:each="dept:${depts}" th:text="${dept.deptName}" th:value="${dept.deptId}">
-
-                            </option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>婚姻情况</label>
-                        <input type="radio" name="isMarried" value="1">已婚&nbsp;&nbsp;&nbsp;
-                        <input type="radio" name="isMarried" value="0" checked>未婚
+                        <label for="addTitleInput">外语等级</label>
+                        <input type="text" class="form-control" id="addLangInput" name="foreignLang" placeholder="如：英语六级"/>
                     </div>
                     <input id="submit_btn" type="submit" value="添加" class="btn btn-success"/>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--学历信息动态查询模态框-->
+<div class="modal fade" id="selectModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="selectByCondition">查询职工学历信息</h4>
+            </div>
+            <div class="modal-body">
+                <form id="selectForm" action="http://localhost:8080/education/getByCondition" method="post">
+                    <div class="form-group">
+                        <label for="selectIDInput">职工号</label>
+                        <input type="text" class="form-control" id="selectIDInput" name="employeeId" placeholder="如：e-001"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="selectNameInput">学历</label>
+                        <input type="text" class="form-control" id="selectNameInput" name="eduBackground" placeholder="如：本科"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="selectTitleInput">专业</label>
+                        <input type="text" class="form-control" id="selectTitleInput" name="major" placeholder="如：计算机科学与技术"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="selectTitleInput">毕业院校</label>
+                        <input type="text" class="form-control" id="selectSchoolInput" name="graduateSchool" placeholder="如：天津工业大学"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="selectTitleInput">外语水平</label>
+                        <input type="text" class="form-control" id="selectLangInput" name="foreignLang" placeholder="如：英语六级"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="selectTitleInput">毕业时间</label>
+                        <input type="text" class="form-control" id="selectTimeInput" name="graduateDate" placeholder="如：2019-6-11"/>
+                    </div>
+                    <input id="select_submit_btn" type="submit" value="查询" class="btn btn-success"/>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--职工学历信息修改模态框-->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">修改职工学历信息</h4>
+            </div>
+            <div class="modal-body">
+                <form id="editForm" action="http://localhost:8080/education/update" method="post">
+                    <div class="form-group">
+                        <label for="editIDInput">职工号</label>
+                        <input type="text" class="form-control" id="editIDInput" name="employeeId" placeholder="如：e-001"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="editBackInput">学历</label>
+                        <input type="text" class="form-control" id="editBackInput" name="eduBackground" placeholder="如：张三"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="editMajorInput">专业</label>
+                        <input type="text" class="form-control" id="editMajorInput" name="major" placeholder="如：25"/>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editDateInput">毕业时间</label>
+                        <input type="text" class="form-control" id="editDateInput" name="graduateDate" placeholder="如：2009-12-1"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="editSchoolInput">毕业院校</label>
+                        <input type="text" class="form-control" id="editSchoolInput" name="graduateSchool" placeholder="如：高级工程师"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="editLangInput">外语等级</label>
+                        <input type="text" class="form-control" id="editLangInput" name="foreignLang" placeholder="如：高级工程师"/>
+                    </div>
+
+                    <input id="edit_submit_btn" type="submit" value="修改" class="btn btn-success"/>
                 </form>
             </div>
             <div class="modal-footer">

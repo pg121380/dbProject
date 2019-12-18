@@ -60,4 +60,16 @@ public class EmployeeService {
     public List<WorkTime> getWorkTimeByTime(int time){
         return workTimeMapper.getWorkTimeByTime(time);
     }
+
+    public List<WorkTime> getWorkTimes(){
+        return workTimeMapper.getWorkTimes();
+    }
+
+    public List<HashMap<String,Object>> getDeptEmployeeNumber(){
+        return employeeMapper.getDeptEmployeeMap();
+    }
+
+    public List<HashMap<String,Object>> getEmployeeMarriage(){
+        return employeeMapper.getEmployeeMarriage();
+    }
 }

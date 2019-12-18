@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>统计</title>
+    <script src="/js/jquery-1.12.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.2.1/echarts.min.js"></script>
+    <script src="/js/path.js"></script>
+    <script>
+        $(function () {
+            $.ajax({
+                url: BaseUrl + "/statistics/getDeptEmployeeNumber",
+                type: "GET",
+                dataType: "JSON",
+                success:function (data) {
+                    var myChart = echarts.init(document.getElementById('deptEmployeeNumber'));
+                    var option = {
+                        roseType: 'angle',
+                        series : [
+                            {
+                                name: '部门人数',
+                                type: 'pie',
+                                radius: '55%',
+                                data:data
+                            }
+                        ]
+                    };
+                    myChart.setOption(option);
+                }
+            });
+
+            $.ajax({
+                url: BaseUrl + "/statistics/getEdu",
+                type: "GET",
+                dataType: "JSON",
+                success:function (data) {
+                    var myChart = echarts.init(document.getElementById('educationNumber'));
+                    var option = {
+                        roseType: 'angle',
+                        series : [
+                            {
+                                name: '部门人数',
+                                type: 'pie',
+                                radius: '55%',
+                                data:data,
+                                backgroundColor: '#2c343c'
+                            }
+                        ]
+                    };
+                    myChart.setOption(option);
+                }
+            });
+
+            $.ajax({
+                url: BaseUrl + "/statistics/getMarriage",
+                type: "GET",
+                dataType: "JSON",
+                success:function (data) {
+                    var myChart = echarts.init(document.getElementById('marriageNumber'));
+                    var option = {
+                        roseType: 'angle',
+                        series : [
+                            {
+                                name: '部门人数',
+                                type: 'pie',
+                                radius: '55%',
+                                data:data,
+                                backgroundColor: '#2c343c'
+                            }
+                        ]
+                    };
+                    myChart.setOption(option);
+                }
+            });
+
+            $.ajax({
+                url: BaseUrl + "/statistics/workTime",
+                type: "GET",
+                dataType: "JSON",
+                success:function (data) {
+                    var myChart = echarts.init(document.getElementById('workTime'));
+                    var option = {
+                        roseType: 'angle',
+                        series : [
+                            {
+                                name: '部门人数',
+                                type: 'pie',
+                                radius: '55%',
+                                data:data,
+                                backgroundColor: '#2c343c'
+                            }
+                        ]
+                    };
+                    myChart.setOption(option);
+                }
+            });
+
+        })
+    </script>
+</head>
+<body>
+    <div align="center" id="graphArea">
+        <p>各部门职工人数</p>
+        <div id="deptEmployeeNumber" style="width: 600px;height:400px;"></div>
+        <p>职工学历统计</p>
+        <div id="educationNumber" style="width: 600px;height:400px;"></div>
+        <p>职工婚姻情况统计</p>
+        <div id="marriageNumber" style="width: 600px;height:400px;"></div>
+        <p>职工工作时间统计</p>
+        <div id="workTime" style="width: 600px;height:400px;"></div>
+    </div>
+</body>
+</html>

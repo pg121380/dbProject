@@ -13,4 +13,7 @@ public interface WorkTimeMapper {
 
     @Select("select * from IS_workTime where workTime >= #{time}")
     List<WorkTime> getWorkTimeByTime(int time);
+
+    @Select("select * from IS_workTime")
+    List<WorkTime> getWorkTimes();
 }

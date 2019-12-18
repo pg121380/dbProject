@@ -1,5 +1,7 @@
 package org.sfa.infomanage.bean;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.util.Date;
 
 public class Education {
@@ -7,6 +9,8 @@ public class Education {
     private String employeeId;
     private String eduBackground;
     private String major;   //专业
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date graduateDate;  // 毕业时间
     private String graduateSchool;  //毕业院校
     private String foreignLang; //外语水平
